@@ -1,0 +1,30 @@
+node ('VZW.POS.LINUX.06') {  
+
+
+stage('Prepare/Checkout') { // for display purposes
+    sh "rm -rf  $WORKSPACE/ecats"
+    dir('vzcredit') {
+    git branch: 'master', url: 'https://onestash.verizon.com/scm/bvd/vzcredit.git'
+    }
+    dir('ecats') {
+       git branch: 'master', url: 'https://onestash.verizon.com/scm/bvd/ecats.git'
+       
+    }
+
+}
+
+stage('Build-vzcredit') {
+
+sh "cd $WORKSPACE/vzcredit; npm install; npm run ng-build-prod"
+}
+
+stage('Build-ecats') {
+
+ sh "cd $WORKSPACE/ecats/ECredit; mkdir -p src/main/webapp/WEB-INF/lib; rm -rf src/test; cp -rp ../../vzcredit/dist/* src/main/webapp/ecats-gui; cp /pos/posbuild/wlserver/build* .; ./build.sh"
+}
+stage('Copy WAR') {
+// SQA2 
+ // sh "cd $WORKSPACE/ecats/ECredit/dist; scp vzcredit.war weblogic@obsneposzat16:/app/vzw/exploded/stage; scp vzcredit.war weblogic@obsnepogzaq02:/app/vzw/exploded/stage"
+ // SQA3  sh "cd $WORKSPACE/ecats/ECredit/dist; scp vzcredit.war weblogic@obsnepogzaq06:/app/vzw/exploded/stage; scp vzcredit.war weblogic@obsnepogzaq04:/app/vzw/exploded/stage"
+}
+}
